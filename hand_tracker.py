@@ -76,7 +76,7 @@ class HandTracker:
         self._hands_data = []
         self._pinch_data = []
 
-        # ✅ NEW: cache landmarks (NO double processing)
+        
         self._last_landmarks = None
 
         self._hands = None
@@ -108,7 +108,7 @@ class HandTracker:
         lm_list = getattr(result, "multi_hand_landmarks", None)
         hd_list = getattr(result, "multi_handedness", None)
 
-        # ✅ STORE landmarks (critical fix)
+        
         self._last_landmarks = lm_list
 
         if lm_list is None or hd_list is None:
@@ -199,9 +199,7 @@ class HandTracker:
     # ── UI ─────────────────────────────────────────
 
     def draw_landmarks(self, frame):
-        """
-        ✅ FINAL: Only thumb + index (NO full hand, NO re-processing)
-        """
+        
         if self._last_landmarks is None:
             return frame
 
