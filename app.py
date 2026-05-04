@@ -136,7 +136,7 @@ class _Proc(VideoProcessorBase):
         self.b_ov = b_ov
         self.zoom_ov = zoom_ov
 
-        # ✅ update particles dynamically
+        
         if particles != self.particles:
             self.particles = particles
             self.sim = AttractorSimulation(self.particles, 60, self.b)
@@ -165,7 +165,6 @@ class _Proc(VideoProcessorBase):
         active = self.tracker.active
 
         # Controls
-# Controls (STABLE VERSION)
         if self.hand_ctrl and active:
             pinch_active = (
                 abs(self.tracker.zoom - 1.0) > 0.12 and
@@ -269,7 +268,7 @@ ctx = webrtc_streamer(
         "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
     }),
     media_stream_constraints={
-        "video": video_constraints,   # ✅ dynamic camera
+        "video": video_constraints,   
         "audio": False,
     },
     async_processing=True,
