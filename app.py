@@ -142,11 +142,7 @@ class _Proc(VideoProcessorBase):
             self.sim = AttractorSimulation(self.particles, 60, self.b)
 
     def recv(self, frame: VideoFrame) -> VideoFrame:
-        img = frame.to_ndarray(format="bgr24")
-
-        # Fix green issue (force conversion)
-        bgr = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        bgr = cv2.cvtColor(bgr, cv2.COLOR_RGB2BGR)
+        bgr = frame.to_ndarray(format="bgr24")
 
         bgr = cv2.flip(bgr, 1)
         bgr = cv2.resize(bgr, (640, 480))
@@ -169,25 +165,38 @@ class _Proc(VideoProcessorBase):
         active = self.tracker.active
 
         # Controls
+# Controls (STABLE VERSION)
         if self.hand_ctrl and active:
             pinch_active = (
-                abs(self.tracker.zoom - 1.0) > 0.08 or
-                abs(self.tracker.b - 0.18) > 0.05
+                abs(self.tracker.zoom - 1.0) > 0.12 and
+                abs(self.tracker.b - 0.18) > 0.08
             )
 
             if pinch_active:
-                self.b = 0.90 * self.b + 0.10 * self.tracker.b
-                self.zoom = 0.90 * self.zoom + 0.10 * self.tracker.zoom
+                # Smooth + dead zone
+                if abs(self.tracker.b - self.b) > 0.02:
+                    # Normalize pinch → stable b mapping
+                    raw = self.tracker.b   # coming from tracker
 
-            # ✅ rotation always active
-            self.rx = 0.90 * self.rx + self.tracker.rot_x
-            self.ry = 0.90 * self.ry + self.tracker.rot_y
+                    # Clamp raw input
+                    raw = np.clip(raw, 0.0, 1.0)
 
+                    # Map to desired range
+                    mapped_b = 0.05 + raw * (0.28 - 0.05)
+
+                    # Smooth
+                    self.b = 0.97 * self.b + 0.03 * mapped_b
+
+                self.zoom = 0.95 * self.zoom + 0.05 * self.tracker.zoom
+
+            # Smooth rotation
+            self.rx = 0.92 * self.rx + self.tracker.rot_x
+            self.ry = 0.92 * self.ry + self.tracker.rot_y
         else:
             self.b = 0.92 * self.b + 0.08 * self.b_ov
             self.zoom = 0.92 * self.zoom + 0.08 * self.zoom_ov
 
-        self.b = float(np.clip(self.b, -0.28, 0.28))
+        self.b = float(np.clip(self.b, -0.10, 0.28))
         self.zoom = float(np.clip(self.zoom, 0.3, 3.0))
 
         # Render
@@ -204,9 +213,11 @@ class _Proc(VideoProcessorBase):
 
         y1, y2 = H - cam_h - 20, H - 20
         x1, x2 = W - cam_w - 20, W - 20
+        # Safety check before placing camera window
+        if y1 >= 0 and x1 >= 0 and y2 <= H and x2 <= W:
 
-        out[y1:y2, x1:x2] = cam_small
-        cv2.rectangle(out, (x1, y1), (x2, y2), (255, 255, 255), 2)
+            out[y1:y2, x1:x2] = cam_small
+            cv2.rectangle(out, (x1, y1), (x2, y2), (255, 255, 255), 2)
 
         if self.show_lm:
             cam_draw = self.tracker.draw_landmarks(cam_small.copy())
@@ -236,6 +247,19 @@ b_ov = st.sidebar.slider("b", -0.28, 0.28, 0.18)
 zoom_ov = st.sidebar.slider("Zoom", 0.3, 3.0, 1.0)
 particles = st.sidebar.slider("Particles", 300, 3000, 700)
 
+# 🔥 NEW: Camera Selection
+cam_choice = st.sidebar.selectbox(
+    "🎥 Select Camera",
+    ["Laptop Camera", "DroidCam"]
+)
+
+# 🎯 Dynamic constraints
+video_constraints = {
+    "width": 640,
+    "height": 480,
+    "frameRate": 15
+}
+
 
 # ── STREAM ─────────────────────────────────────────
 ctx = webrtc_streamer(
@@ -245,7 +269,7 @@ ctx = webrtc_streamer(
         "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
     }),
     media_stream_constraints={
-        "video": {"width": 640, "height": 480, "frameRate": 15},
+        "video": video_constraints,   # ✅ dynamic camera
         "audio": False,
     },
     async_processing=True,
