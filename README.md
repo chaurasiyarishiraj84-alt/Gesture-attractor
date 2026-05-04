@@ -135,7 +135,7 @@ Camera → Hand Tracking → Gesture → Parameters → Simulation → Rendering
 ## ▶️ Run
 
 
-git clone https://github.com/your-username/gesture-attractor.git
+git clone https://github.com/chaurasiyarishiraj84-alt/Gesture-attractor
 
 cd gesture-attractor
 pip install -r requirements.txt
