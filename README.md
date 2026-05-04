@@ -1,12 +1,8 @@
 # 🌀 Gesture-Controlled Thomas Attractor System
-
+ 🚀 Industry-Grade Real-Time WebRTC Computer Vision Application
 > Real-time gesture-driven chaotic system visualization using Computer Vision, Mathematics, and Interactive Rendering.
 
 ---
-
-## 🚀 Live Demo
-
-👉 https://huggingface.co/spaces/YOUR-SPACE-LINK
 
 ---
 
