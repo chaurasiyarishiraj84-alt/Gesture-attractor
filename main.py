@@ -1,7 +1,7 @@
 """
 main.py — Strange Attractor Desktop Visualiser
 ===============================================
-Industry-grade · Python 3.11 · venv311
+ Python 3.11 · venv311
 
 Controls
   Q / ESC     quit                SPACE   pause / resume
