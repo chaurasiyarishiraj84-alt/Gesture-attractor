@@ -1,8 +1,9 @@
+---
+
+```markdown
 # 🌀 Gesture-Controlled Thomas Attractor System
 
-An end-to-end **real-time interactive visualization system** built using **Computer Vision, Mathematics, and AI-based gesture control**, with a **Streamlit + WebRTC interface** for live interaction.
-
-This project demonstrates a complete pipeline — from **hand tracking and gesture recognition** to **chaotic system simulation, rendering, and real-time visualization**.
+> Real-time gesture-driven chaotic system visualization using Computer Vision, Mathematics, and Interactive Rendering.
 
 ---
 
@@ -12,45 +13,62 @@ This project demonstrates a complete pipeline — from **hand tracking and gestu
 
 ---
 
-## 🚀 Features
+## ✨ Overview
 
-* Real-time Thomas Attractor simulation
-* Gesture-based control (thumb + index pinch)
-* Hand tracking using MediaPipe
-* Zoom, rotation, and parameter control via gestures
-* Smooth motion using EMA filtering
-* Split visualization (model + camera feed)
-* Low-latency streaming using WebRTC
-* Adjustable parameters via UI sliders
-* Real-time performance metrics (FPS, hands, particles)
+This project is an interactive visualization system that combines:
+
+- Nonlinear dynamical systems (Thomas Attractor)
+- Computer Vision (hand tracking)
+- Gesture-based control
+- Real-time rendering pipeline
+
+Users can control chaos in real time using simple hand gestures like pinch, enabling intuitive human–computer interaction.
+
+---
+
+## 🔥 Key Features
+
+- Real-time Thomas Attractor simulation  
+- Gesture-based control (thumb + index pinch)  
+- Hand tracking using MediaPipe  
+- Dynamic control of:
+  - Zoom  
+  - Rotation  
+  - System parameter `b`  
+- Smooth interaction using EMA filtering  
+- Split-screen visualization (model + camera)  
+- Low-latency streaming (WebRTC)  
+- UI controls via Streamlit  
+- Live performance metrics (FPS, hands, particles)  
 
 ---
 
 ## 🧠 Tech Stack
 
-* **Python**
-* **NumPy**
-* **OpenCV**
-* **MediaPipe**
-* **Streamlit**
-* **streamlit-webrtc**
-* **AV (PyAV)**
+- Python  
+- NumPy  
+- OpenCV  
+- MediaPipe  
+- Streamlit  
+- streamlit-webrtc  
+- PyAV  
 
 ---
 
 ## 📁 Project Structure
 
-```id="t1m9k2"
+```
+
 gesture-attractor/
 │
-├── app.py           # Streamlit + WebRTC app (real-time UI + streaming)
-├── main.py          # Standalone OpenCV runner (no Streamlit, direct execution)
-├── attractor.py     # Thomas attractor simulation (math + particle updates)
-├── hand_tracker.py  # Hand tracking & gesture detection (MediaPipe)
-├── renderer.py      # Rendering engine (projection, glow, drawing)
-├── ui.py            # UI helpers (controls, overlays, layout)
-├── requirements.txt # Project dependencies
-└── README.md        # Project documentation
+├── app.py
+├── main.py
+├── attractor.py
+├── hand_tracker.py
+├── renderer.py
+├── ui.py
+├── requirements.txt
+└── README.md
 
 ```
 
@@ -58,188 +76,182 @@ gesture-attractor/
 
 ## 🧠 Mathematical Model
 
-### Thomas Attractor Equations
+### Thomas Attractor
 
-[
-\frac{dx}{dt} = \sin(y) - b x
-]
-[
-\frac{dy}{dt} = \sin(z) - b y
-]
-[
-\frac{dz}{dt} = \sin(x) - b z
-]
+```
+
+dx/dt = sin(y) - b * x
+dy/dt = sin(z) - b * y
+dz/dt = sin(x) - b * z
+
+```
 
 Where:
-
-* (x, y, z) → state variables
-* (b) → system parameter controlling chaos
-
----
-
-## ⚙️ Numerical Approach
-
-* Method: **Euler Integration**
-* Discrete update:
-
-[
-x_{t+1} = x_t + \Delta t (\sin(y_t) - b x_t)
-]
-
-* Multiple particles simulate trajectory evolution
+- x, y, z → state variables  
+- b → controls system behavior  
 
 ---
 
-## 🎯 Gesture Mapping
+## ⚙️ Numerical Simulation (Euler Method)
 
-### ✋ Hand Interaction
+```
 
-| Gesture               | Action                |
-| --------------------- | --------------------- |
-| Pinch (thumb + index) | Activate control      |
-| Left Hand             | Zoom + Rotation       |
-| Right Hand            | Control parameter `b` |
-| No gesture            | UI slider fallback    |
+x(t+1) = x(t) + Δt * (sin(y(t)) - b * x(t))
+y(t+1) = y(t) + Δt * (sin(z(t)) - b * y(t))
+z(t+1) = z(t) + Δt * (sin(x(t)) - b * z(t))
+
+```
+
+- Δt → time step  
+- Multi-particle system used  
 
 ---
 
 ## 🔄 3D Transformation
 
-Rotation matrices:
+### Rotation
 
-[
-R = R_y \cdot R_x
-]
+```
 
-Projection:
+R = Ry * Rx
 
-[
-x' = x \cdot scale + center_x
-]
-[
-y' = y \cdot scale + center_y
-]
+```
+
+### Projection
+
+```
+
+x' = x * scale + center_x
+y' = y * scale + center_y
+
+```
 
 ---
 
 ## 🎨 Rendering Pipeline
 
-1. Simulate attractor points
-2. Apply rotation matrix
-3. Project to 2D screen
-4. Accumulate intensity
-5. Apply logarithmic glow
+1. Simulate particles  
+2. Apply rotation  
+3. Project to 2D  
+4. Accumulate intensity  
+5. Apply glow  
 
-[
-I' = \frac{\log(1 + kI)}{\log(1 + k)}
-]
+### Glow Function
+
+```
+
+I' = log(1 + k * I) / log(1 + k)
+
+```
+
+---
+
+## ✋ Gesture Mapping
+
+| Gesture               | Action                |
+|----------------------|---------------------|
+| Pinch                | Activate control     |
+| Left hand            | Zoom + rotation      |
+| Right hand           | Control parameter b  |
+| No gesture           | UI slider fallback   |
 
 ---
 
 ## 🏗️ System Architecture
 
-```id="y8x2lp"
+```
+
 Webcam Input
-     ↓
+↓
 MediaPipe Hand Tracking
-     ↓
-Gesture Processing (Pinch Detection)
-     ↓
-Parameter Mapping (b, zoom, rotation)
-     ↓
-Attractor Simulation (Numerical Integration)
-     ↓
-3D Transformation & Projection
-     ↓
-Rendering (Glow + Particles)
-     ↓
-Frame Composition (Camera + Model)
-     ↓
-Streamlit WebRTC Output
+↓
+Gesture Processing
+↓
+Parameter Mapping
+↓
+Attractor Simulation
+↓
+3D Transformation
+↓
+Rendering
+↓
+Output Stream
+
 ```
 
 ---
 
-## ▶️ Run the Application
+## ▶️ Run Locally
 
-### 1️⃣ Clone repository
+### Clone repo
+```
 
-```bash id="f2x9ka"
-git clone <your-repo-url>
+git clone [https://github.com/your-username/gesture-attractor.git](https://github.com/your-username/gesture-attractor.git)
 cd gesture-attractor
+
 ```
 
-### 2️⃣ Install dependencies
+### Install dependencies
+```
 
-```bash id="d8k2pl"
 pip install -r requirements.txt
+
 ```
 
-### 3️⃣ Run Streamlit app
+### Run app
+```
 
-```bash id="k92mza"
 streamlit run app.py
+
 ```
 
 ---
 
-## ⚙️ Controls (UI)
+## 🎛️ Controls
 
-* **b parameter slider**
-* **Zoom slider**
-* **Particle count**
-* **Toggle hand control**
-* **Show finger tracking**
-
----
-
-## 📊 Model Details
-
-* System Type: **Nonlinear Dynamical System**
-* Simulation: **Multi-particle system**
-* Rendering: **Glow-based accumulation**
-* Interaction: **Gesture-driven real-time control**
+- b parameter  
+- Zoom  
+- Particle count  
+- Toggle gesture control  
+- Show finger tracking  
 
 ---
 
-## ⚡ Performance
+## 📊 Performance
 
-* Resolution: 640×480
-* Frame Rate: ~15 FPS
-* Optimized using:
-
-  * NumPy vectorization
-  * EMA smoothing
-  * Efficient rendering loops
-
----
-
-## 🔁 Future Enhancements
-
-* GPU acceleration (OpenGL / CUDA)
-* Gesture classification (ML-based)
-* Multi-user interaction
-* Advanced visual effects
-* Mobile deployment
+- Resolution: 640×480  
+- FPS: ~15  
+- Optimizations:
+  - NumPy vectorization  
+  - EMA smoothing  
+  - Efficient rendering  
 
 ---
 
 ## 🌍 Deployment
 
-This project can be deployed on:
+- Hugging Face Spaces  
+- Streamlit Cloud  
 
-* Hugging Face Spaces
-* Streamlit Cloud
+---
+
+## 🚀 Future Enhancements
+
+- GPU acceleration  
+- ML gesture classification  
+- Multi-user interaction  
+- Advanced visuals  
 
 ---
 
 ## 👤 Author
 
-Developed by **Rishi Raj Chaurasiya**
-B.Tech in Artificial Intelligence & Machine Learning
+Rishi Raj Chaurasiya  
+B.Tech AI & ML  
 
 ---
 
 ## 📜 License
 
-This project is open-source and available under the MIT License.
+MIT License
+```
